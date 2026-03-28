@@ -1,11 +1,142 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
 
+interface StockItem {
+  id: number;
+  emoji: string;
+  name: string;
+  qty: number;
+  cell: string;
+  category: string;
+  status: "available" | "in-use" | "reserved";
+}
+
+const stockItems: StockItem[] = [
+  { id: 1, emoji: "🔧", name: "Дрель Makita DF333D", qty: 5, cell: "A-01-03", category: "Электроинструмент", status: "available" },
+  { id: 2, emoji: "⚡", name: "Перфоратор Bosch GBH 2-26", qty: 3, cell: "A-01-04", category: "Электроинструмент", status: "in-use" },
+  { id: 3, emoji: "🔩", name: "Шуруповёрт DeWalt DCD796", qty: 8, cell: "A-02-01", category: "Электроинструмент", status: "available" },
+  { id: 4, emoji: "🔥", name: "Сварочный аппарат ESAB", qty: 2, cell: "B-01-02", category: "Сварка", status: "reserved" },
+  { id: 5, emoji: "💿", name: "Болгарка Metabo WB 18", qty: 6, cell: "A-02-03", category: "Электроинструмент", status: "available" },
+  { id: 6, emoji: "💨", name: "Компрессор Fubag B3600", qty: 1, cell: "C-03-01", category: "Пневматика", status: "in-use" },
+  { id: 7, emoji: "🔑", name: "Набор ключей Stanley", qty: 12, cell: "D-01-05", category: "Ручной инструмент", status: "available" },
+  { id: 8, emoji: "📐", name: "Лазерный уровень Bosch", qty: 4, cell: "D-02-02", category: "Измерение", status: "available" },
+  { id: 9, emoji: "🪛", name: "Набор отвёрток Wera", qty: 15, cell: "D-01-06", category: "Ручной инструмент", status: "available" },
+  { id: 10, emoji: "🔦", name: "Фонарь Fenix TK16", qty: 7, cell: "E-01-01", category: "Освещение", status: "available" },
+];
+
+const statusLabel: Record<string, string> = {
+  available: "В наличии",
+  "in-use": "В использовании",
+  reserved: "Зарезервирован",
+};
+
+const statusCls: Record<string, string> = {
+  available: "status-available",
+  "in-use": "status-in-use",
+  reserved: "status-reserved",
+};
+
+function StockModal({ onClose }: { onClose: () => void }) {
+  const [search, setSearch] = useState("");
+  const filtered = stockItems.filter(
+    (i) =>
+      i.name.toLowerCase().includes(search.toLowerCase()) ||
+      i.cell.toLowerCase().includes(search.toLowerCase()) ||
+      i.category.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-lg bg-card rounded-t-2xl border border-border/60 shadow-2xl animate-slide-up"
+        style={{ maxHeight: "82vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+        </div>
+
+        {/* Header */}
+        <div className="px-4 pt-2 pb-3 border-b border-border/40 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-oswald text-lg font-semibold gradient-text">Товары на складе</h2>
+            <p className="text-xs text-muted-foreground">{stockItems.length} позиций · 248 единиц</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors"
+          >
+            <Icon name="X" size={16} className="text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="px-4 py-3">
+          <div className="relative">
+            <Icon name="Search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Поиск по названию или ячейке..."
+              className="w-full bg-muted/50 border border-border/50 rounded-xl pl-8 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#00e5ff]/40 transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="overflow-y-auto px-4 pb-6 space-y-2" style={{ maxHeight: "52vh" }}>
+          {filtered.map((item, i) => (
+            <div
+              key={item.id}
+              className="gradient-card rounded-xl p-3 flex items-center gap-3 animate-fade-in"
+              style={{ animationDelay: `${i * 0.03}s` }}
+            >
+              {/* Photo / emoji */}
+              <div className="w-12 h-12 rounded-xl bg-muted/60 border border-border/50 flex items-center justify-center flex-shrink-0 text-2xl">
+                {item.emoji}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground leading-tight">{item.name}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{item.category}</p>
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span className="flex items-center gap-1 text-[10px] text-[#c084fc] bg-[#c084fc]/10 border border-[#c084fc]/20 px-2 py-0.5 rounded-md font-mono">
+                    <Icon name="Grid3x3" size={10} />
+                    {item.cell}
+                  </span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusCls[item.status]}`}>
+                    {statusLabel[item.status]}
+                  </span>
+                </div>
+              </div>
+
+              {/* Qty */}
+              <div className="flex-shrink-0 text-right">
+                <p className="font-oswald text-xl font-bold neon-text-cyan">{item.qty}</p>
+                <p className="text-[10px] text-muted-foreground">шт.</p>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground text-sm">Ничего не найдено</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const stats = [
-  { label: "Товаров на складе", value: "248", icon: "Package", color: "#00e5ff" },
-  { label: "В использовании", value: "37", icon: "ArrowUpRight", color: "#ff9100" },
-  { label: "Выручка за месяц", value: "₽ 142 500", icon: "TrendingUp", color: "#00e676" },
-  { label: "Новых операций", value: "12", icon: "Activity", color: "#e040fb" },
+  { label: "Товаров на складе", value: "248", icon: "Package", color: "#00e5ff", clickable: true },
+  { label: "В использовании", value: "37", icon: "ArrowUpRight", color: "#ff9100", clickable: false },
+  { label: "Выручка за месяц", value: "₽ 142 500", icon: "TrendingUp", color: "#00e676", clickable: false },
+  { label: "Новых операций", value: "12", icon: "Activity", color: "#e040fb", clickable: false },
 ];
 
 const recentActivity = [
@@ -74,6 +205,7 @@ function EditField({ label, value, icon, iconColor, onChange, type = "text" }: E
 export default function TabOwner() {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showStock, setShowStock] = useState(false);
 
   const [profile, setProfile] = useState<ProfileData>({
     firstName: "Алексей",
@@ -215,11 +347,24 @@ export default function TabOwner() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3">
         {stats.map((stat) => (
-          <div key={stat.label} className="gradient-card rounded-xl p-4 relative overflow-hidden">
+          <div
+            key={stat.label}
+            onClick={() => stat.clickable && setShowStock(true)}
+            className={`gradient-card rounded-xl p-4 relative overflow-hidden transition-all duration-200 ${
+              stat.clickable
+                ? "cursor-pointer hover:border-[#00e5ff]/30 hover:scale-[1.02] active:scale-[0.98]"
+                : ""
+            }`}
+          >
             <div
               className="absolute top-0 right-0 w-16 h-16 rounded-full blur-2xl opacity-30"
               style={{ background: stat.color }}
             ></div>
+            {stat.clickable && (
+              <div className="absolute top-2.5 right-2.5">
+                <Icon name="ChevronRight" size={12} className="text-muted-foreground/50" />
+              </div>
+            )}
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
               style={{ background: `${stat.color}20`, border: `1px solid ${stat.color}30` }}
@@ -233,6 +378,8 @@ export default function TabOwner() {
           </div>
         ))}
       </div>
+
+      {showStock && <StockModal onClose={() => setShowStock(false)} />}
 
       {/* Recent Activity */}
       <div>
