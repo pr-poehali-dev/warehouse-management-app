@@ -132,11 +132,168 @@ function StockModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+interface RevenueItem {
+  emoji: string;
+  name: string;
+  type: "sold" | "realization" | "passive";
+  amount: number;
+  qty?: number;
+  date: string;
+  note?: string;
+}
+
+const revenueItems: RevenueItem[] = [
+  { emoji: "🔧", name: "Дрель Makita DF333D", type: "sold", amount: 17000, qty: 2, date: "05 мар" },
+  { emoji: "💿", name: "Болгарка Metabo WB 18", type: "sold", amount: 9800, qty: 1, date: "08 мар" },
+  { emoji: "🔩", name: "Шуруповёрт DeWalt DCD796", type: "sold", amount: 24000, qty: 2, date: "12 мар" },
+  { emoji: "🔑", name: "Набор ключей Stanley", type: "realization", amount: 15600, qty: 3, date: "14 мар", note: "Реализация через партнёра" },
+  { emoji: "📐", name: "Лазерный уровень Bosch", type: "realization", amount: 18900, qty: 3, date: "17 мар", note: "Под реализацию" },
+  { emoji: "💨", name: "Компрессор Fubag B3600", type: "passive", amount: 8400, date: "01–28 мар", note: "Аренда · 28 дней × 300 ₽" },
+  { emoji: "⚡", name: "Перфоратор Bosch GBH", type: "passive", amount: 12600, date: "03–28 мар", note: "Лизинг · 25 дней × 504 ₽" },
+  { emoji: "🔥", name: "Сварочный аппарат ESAB", type: "passive", amount: 22000, date: "10–28 мар", note: "Аренда · 18 дней × 1 222 ₽" },
+  { emoji: "🔦", name: "Фонарь Fenix TK16 (×4)", type: "passive", amount: 6400, date: "15–28 мар", note: "Аренда · 13 дней × 492 ₽" },
+  { emoji: "🪛", name: "Набор отвёрток Wera", type: "realization", amount: 7800, qty: 2, date: "22 мар", note: "Реализация" },
+];
+
+const revenueTotals = {
+  sold: revenueItems.filter((i) => i.type === "sold").reduce((s, i) => s + i.amount, 0),
+  realization: revenueItems.filter((i) => i.type === "realization").reduce((s, i) => s + i.amount, 0),
+  passive: revenueItems.filter((i) => i.type === "passive").reduce((s, i) => s + i.amount, 0),
+};
+
+const revenueTypeLabel: Record<string, string> = {
+  sold: "Продажа",
+  realization: "Реализация",
+  passive: "Пассивный доход",
+};
+const revenueTypeColor: Record<string, string> = {
+  sold: "#00e676",
+  realization: "#00e5ff",
+  passive: "#e040fb",
+};
+const revenueTypeIcon: Record<string, string> = {
+  sold: "ShoppingCart",
+  realization: "Handshake",
+  passive: "Repeat",
+};
+
+function RevenueModal({ onClose }: { onClose: () => void }) {
+  const [filter, setFilter] = useState<"all" | "sold" | "realization" | "passive">("all");
+  const filtered = filter === "all" ? revenueItems : revenueItems.filter((i) => i.type === filter);
+  const total = revenueTotals.sold + revenueTotals.realization + revenueTotals.passive;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-lg bg-card rounded-t-2xl border border-border/60 shadow-2xl animate-slide-up"
+        style={{ maxHeight: "88vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+        </div>
+
+        {/* Header */}
+        <div className="px-4 pt-2 pb-3 border-b border-border/40 flex items-start justify-between gap-3">
+          <div>
+            <h2 className="font-oswald text-lg font-semibold gradient-text">Выручка за март 2026</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Итого: <span className="text-[#00e676] font-bold">{total.toLocaleString("ru")} ₽</span></p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0">
+            <Icon name="X" size={16} className="text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* KPI row */}
+        <div className="px-4 py-3 grid grid-cols-3 gap-2">
+          {(["sold", "realization", "passive"] as const).map((t) => (
+            <div
+              key={t}
+              className="rounded-xl p-2.5 text-center border transition-all cursor-pointer"
+              style={{
+                background: filter === t ? `${revenueTypeColor[t]}15` : "rgba(255,255,255,0.03)",
+                borderColor: filter === t ? `${revenueTypeColor[t]}40` : "rgba(255,255,255,0.07)",
+              }}
+              onClick={() => setFilter(filter === t ? "all" : t)}
+            >
+              <p className="font-oswald text-sm font-bold" style={{ color: revenueTypeColor[t] }}>
+                {(revenueTotals[t] / 1000).toFixed(1)}k ₽
+              </p>
+              <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight">{revenueTypeLabel[t]}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Filter chips */}
+        <div className="px-4 pb-2 flex gap-2">
+          {([["all", "Все"], ["sold", "Продажи"], ["realization", "Реализация"], ["passive", "Пассивный"]] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`text-[10px] px-2.5 py-1 rounded-full border transition-all flex-shrink-0 ${
+                filter === key
+                  ? "bg-[#00e5ff]/15 border-[#00e5ff]/40 text-[#00e5ff]"
+                  : "border-border/50 text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* List */}
+        <div className="overflow-y-auto px-4 pb-6 space-y-2" style={{ maxHeight: "50vh" }}>
+          {filtered.map((item, i) => (
+            <div
+              key={i}
+              className="gradient-card rounded-xl p-3 flex items-center gap-3 animate-fade-in"
+              style={{ animationDelay: `${i * 0.03}s` }}
+            >
+              <div className="w-11 h-11 rounded-xl bg-muted/60 border border-border/50 flex items-center justify-center flex-shrink-0 text-xl">
+                {item.emoji}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground leading-tight truncate">{item.name}</p>
+                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span
+                    className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-medium"
+                    style={{
+                      color: revenueTypeColor[item.type],
+                      background: `${revenueTypeColor[item.type]}12`,
+                      borderColor: `${revenueTypeColor[item.type]}30`,
+                    }}
+                  >
+                    <Icon name={revenueTypeIcon[item.type]} size={9} />
+                    {revenueTypeLabel[item.type]}
+                  </span>
+                  {item.note && (
+                    <span className="text-[10px] text-muted-foreground truncate">{item.note}</span>
+                  )}
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-oswald text-base font-bold" style={{ color: revenueTypeColor[item.type] }}>
+                  +{item.amount.toLocaleString("ru")} ₽
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {item.qty ? `${item.qty} шт · ` : ""}{item.date}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const stats = [
-  { label: "Товаров на складе", value: "248", icon: "Package", color: "#00e5ff", clickable: true },
-  { label: "В использовании", value: "37", icon: "ArrowUpRight", color: "#ff9100", clickable: false },
-  { label: "Выручка за месяц", value: "₽ 142 500", icon: "TrendingUp", color: "#00e676", clickable: false },
-  { label: "Новых операций", value: "12", icon: "Activity", color: "#e040fb", clickable: false },
+  { label: "Товаров на складе", value: "248", icon: "Package", color: "#00e5ff", clickable: true, modal: "stock" },
+  { label: "В использовании", value: "37", icon: "ArrowUpRight", color: "#ff9100", clickable: false, modal: "" },
+  { label: "Выручка за месяц", value: "₽ 142 500", icon: "TrendingUp", color: "#00e676", clickable: true, modal: "revenue" },
+  { label: "Новых операций", value: "12", icon: "Activity", color: "#e040fb", clickable: false, modal: "" },
 ];
 
 const recentActivity = [
@@ -206,6 +363,7 @@ export default function TabOwner() {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showStock, setShowStock] = useState(false);
+  const [showRevenue, setShowRevenue] = useState(false);
 
   const [profile, setProfile] = useState<ProfileData>({
     firstName: "Алексей",
@@ -349,7 +507,10 @@ export default function TabOwner() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            onClick={() => stat.clickable && setShowStock(true)}
+            onClick={() => {
+              if (stat.modal === "stock") setShowStock(true);
+              if (stat.modal === "revenue") setShowRevenue(true);
+            }}
             className={`gradient-card rounded-xl p-4 relative overflow-hidden transition-all duration-200 ${
               stat.clickable
                 ? "cursor-pointer hover:border-[#00e5ff]/30 hover:scale-[1.02] active:scale-[0.98]"
@@ -380,6 +541,7 @@ export default function TabOwner() {
       </div>
 
       {showStock && <StockModal onClose={() => setShowStock(false)} />}
+      {showRevenue && <RevenueModal onClose={() => setShowRevenue(false)} />}
 
       {/* Recent Activity */}
       <div>
