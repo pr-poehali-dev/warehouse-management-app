@@ -400,44 +400,55 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
 
         {/* List */}
         <div className="overflow-y-auto px-4 pb-6 space-y-2" style={{ maxHeight: "42vh" }}>
-          {filtered.map((item, i) => (
-            <div
-              key={i}
-              className="gradient-card rounded-xl p-3 flex items-center gap-3 animate-fade-in"
-              style={{ animationDelay: `${i * 0.03}s` }}
-            >
-              <div className="w-11 h-11 rounded-xl bg-muted/60 border border-border/50 flex items-center justify-center flex-shrink-0 text-xl">
-                {item.emoji}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground leading-tight truncate">{item.name}</p>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span
-                    className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-medium"
-                    style={{
-                      color: revenueTypeColor[item.type],
-                      background: `${revenueTypeColor[item.type]}12`,
-                      borderColor: `${revenueTypeColor[item.type]}30`,
-                    }}
+          {filtered.map((item, i) => {
+            const globalIdx = items.indexOf(item);
+            return (
+              <div
+                key={i}
+                className="gradient-card rounded-xl p-3 flex items-center gap-3 animate-fade-in group"
+                style={{ animationDelay: `${i * 0.03}s` }}
+              >
+                <div className="w-11 h-11 rounded-xl bg-muted/60 border border-border/50 flex items-center justify-center flex-shrink-0 text-xl">
+                  {item.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground leading-tight truncate">{item.name}</p>
+                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <span
+                      className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-medium"
+                      style={{
+                        color: revenueTypeColor[item.type],
+                        background: `${revenueTypeColor[item.type]}12`,
+                        borderColor: `${revenueTypeColor[item.type]}30`,
+                      }}
+                    >
+                      <Icon name={revenueTypeIcon[item.type]} size={9} />
+                      {revenueTypeLabel[item.type]}
+                    </span>
+                    {item.note && (
+                      <span className="text-[10px] text-muted-foreground truncate">{item.note}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="text-right">
+                    <p className="font-oswald text-base font-bold" style={{ color: revenueTypeColor[item.type] }}>
+                      +{item.amount.toLocaleString("ru")} ₽
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {item.qty ? `${item.qty} шт · ` : ""}{item.date}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setItems((prev) => prev.filter((_, idx) => idx !== globalIdx))}
+                    className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/20 flex-shrink-0"
                   >
-                    <Icon name={revenueTypeIcon[item.type]} size={9} />
-                    {revenueTypeLabel[item.type]}
-                  </span>
-                  {item.note && (
-                    <span className="text-[10px] text-muted-foreground truncate">{item.note}</span>
-                  )}
+                    <Icon name="Trash2" size={12} className="text-red-400" />
+                  </button>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="font-oswald text-base font-bold" style={{ color: revenueTypeColor[item.type] }}>
-                  +{item.amount.toLocaleString("ru")} ₽
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {item.qty ? `${item.qty} шт · ` : ""}{item.date}
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
           {filtered.length === 0 && (
             <div className="text-center py-8 text-muted-foreground text-sm">Записей нет</div>
           )}
