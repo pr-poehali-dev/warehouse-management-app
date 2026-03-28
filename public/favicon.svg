@@ -1,30 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00e5ff"/>
-      <stop offset="100%" stop-color="#9c27b0"/>
+      <stop offset="0%" stop-color="#0d1b2e"/>
+      <stop offset="100%" stop-color="#1a0a2e"/>
     </linearGradient>
-    <linearGradient id="roof" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="peak1" x1="0%" y1="100%" x2="50%" y2="0%">
       <stop offset="0%" stop-color="#00e5ff"/>
       <stop offset="100%" stop-color="#7c3aed"/>
     </linearGradient>
+    <linearGradient id="peak2" x1="50%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9c27b0"/>
+      <stop offset="100%" stop-color="#00b4d8"/>
+    </linearGradient>
+    <linearGradient id="snow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0f7fa"/>
+    </linearGradient>
+    <linearGradient id="wh" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.9"/>
+    </linearGradient>
   </defs>
-  <!-- Background rounded square -->
-  <rect width="100" height="100" rx="22" fill="url(#bg)"/>
-  <!-- Warehouse body -->
-  <rect x="18" y="48" width="64" height="36" rx="3" fill="white" fill-opacity="0.95"/>
-  <!-- Roof / triangle -->
-  <polygon points="12,50 50,20 88,50" fill="url(#roof)"/>
-  <!-- Door -->
-  <rect x="39" y="62" width="22" height="22" rx="2" fill="#0a0f1e"/>
-  <!-- Door window top arc -->
-  <path d="M39 70 Q50 60 61 70" fill="#00e5ff" fill-opacity="0.5"/>
-  <!-- Left window -->
-  <rect x="22" y="56" width="12" height="10" rx="1.5" fill="#0a0f1e" fill-opacity="0.7"/>
-  <!-- Right window -->
-  <rect x="66" y="56" width="12" height="10" rx="1.5" fill="#0a0f1e" fill-opacity="0.7"/>
-  <!-- Globe circle under warehouse (world) -->
-  <circle cx="50" cy="90" r="5" fill="none" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="50" y1="85" x2="50" y2="95" stroke="white" stroke-width="1" stroke-opacity="0.6"/>
-  <line x1="45" y1="90" x2="55" y2="90" stroke="white" stroke-width="1" stroke-opacity="0.6"/>
+  <rect width="100" height="100" rx="20" fill="url(#bg)"/>
+  <circle cx="15" cy="12" r="0.8" fill="white" fill-opacity="0.6"/>
+  <circle cx="35" cy="8" r="0.6" fill="white" fill-opacity="0.5"/>
+  <circle cx="72" cy="10" r="0.9" fill="white" fill-opacity="0.7"/>
+  <circle cx="88" cy="16" r="0.5" fill="white" fill-opacity="0.4"/>
+  <circle cx="55" cy="6" r="0.7" fill="white" fill-opacity="0.6"/>
+  <polygon points="62,58 82,20 100,58" fill="#1e0a3c" fill-opacity="0.8"/>
+  <polygon points="0,62 32,12 62,62" fill="url(#peak1)"/>
+  <polygon points="38,62 70,16 100,62" fill="url(#peak2)"/>
+  <polygon points="26,28 32,12 38,28 34,24 30,26" fill="url(#snow)" fill-opacity="0.9"/>
+  <polygon points="63,30 70,16 77,30 73,26 67,28" fill="url(#snow)" fill-opacity="0.85"/>
+  <rect x="0" y="60" width="100" height="4" fill="#0a0f1e" fill-opacity="0.5"/>
+  <rect x="28" y="72" width="44" height="22" rx="2" fill="url(#wh)"/>
+  <polygon points="24,73 50,62 76,73" fill="#00e5ff" fill-opacity="0.95"/>
+  <rect x="42" y="80" width="16" height="14" rx="1.5" fill="#0d1b2e"/>
+  <rect x="31" y="76" width="8" height="7" rx="1" fill="#0d1b2e" fill-opacity="0.8"/>
+  <rect x="61" y="76" width="8" height="7" rx="1" fill="#0d1b2e" fill-opacity="0.8"/>
+  <ellipse cx="50" cy="63" rx="10" ry="2" fill="#00e5ff" fill-opacity="0.25"/>
 </svg>

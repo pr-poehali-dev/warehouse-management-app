@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
+import { useAppContext } from "@/context/AppContext";
 
 interface ToggleProps {
   value: boolean;
@@ -91,6 +92,9 @@ type FontOption = "Golos Text" | "Oswald" | "Rubik";
 const fontOptions: FontOption[] = ["Golos Text", "Oswald", "Rubik"];
 
 export default function TabSettings() {
+  const { profile } = useAppContext();
+  const initials = `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase();
+
   const [notifications, setNotifications] = useState({
     push: true,
     movements: true,
@@ -117,11 +121,11 @@ export default function TabSettings() {
       {/* Profile quick edit */}
       <div className="gradient-card rounded-xl p-4 flex items-center gap-3">
         <div className="w-12 h-12 rounded-xl gradient-cyan-violet flex items-center justify-center flex-shrink-0">
-          <span className="font-oswald text-lg font-bold text-background">АС</span>
+          <span className="font-oswald text-lg font-bold text-background">{initials}</span>
         </div>
         <div className="flex-1">
-          <p className="font-medium text-sm text-foreground">Алексей Смирнов</p>
-          <p className="text-xs text-muted-foreground">Владелец • Склад №3</p>
+          <p className="font-medium text-sm text-foreground">{profile.firstName} {profile.lastName}</p>
+          <p className="text-xs text-muted-foreground">{profile.role} • Склад {profile.warehouseNumber}</p>
         </div>
         <button className="text-xs text-[#00e5ff] border border-[#00e5ff]/30 px-3 py-1.5 rounded-lg hover:bg-[#00e5ff]/10 transition-colors">
           Изменить

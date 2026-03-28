@@ -1,28 +1,8 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
+import { useAppContext } from "@/context/AppContext";
 
 type Status = "available" | "in-use" | "reserved";
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  sku: string;
-  qty: number;
-  price: number;
-  status: Status;
-  lastAction: string;
-  assignedTo?: string;
-}
-
-const initialProducts: Product[] = [
-  { id: 1, name: "Дрель Makita DF333D", category: "Электроинструмент", sku: "MK-001", qty: 5, price: 8500, status: "available", lastAction: "28 мар 2026" },
-  { id: 2, name: "Перфоратор Bosch GBH 2-26", category: "Электроинструмент", sku: "BS-002", qty: 3, price: 15200, status: "in-use", lastAction: "27 мар 2026", assignedTo: "Иванов П." },
-  { id: 3, name: "Шуруповёрт DeWalt DCD796", category: "Электроинструмент", sku: "DW-003", qty: 8, price: 12000, status: "available", lastAction: "26 мар 2026" },
-  { id: 4, name: "Сварочный аппарат ESAB", category: "Сварка", sku: "ES-004", qty: 2, price: 45000, status: "reserved", lastAction: "25 мар 2026", assignedTo: "Сидоров А." },
-  { id: 5, name: "Болгарка Metabo WB 18", category: "Электроинструмент", sku: "MT-005", qty: 6, price: 9800, status: "available", lastAction: "24 мар 2026" },
-  { id: 6, name: "Компрессор Fubag B3600", category: "Пневматика", sku: "FB-006", qty: 1, price: 28000, status: "in-use", lastAction: "23 мар 2026", assignedTo: "Козлов В." },
-];
 
 const statusLabels: Record<Status, string> = {
   available: "В наличии",
@@ -39,9 +19,9 @@ const statusClass: Record<Status, string> = {
 const filters = ["Все", "В наличии", "В использовании", "Зарезервирован"];
 
 export default function TabProducts() {
+  const { products } = useAppContext();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("Все");
-  const [products] = useState<Product[]>(initialProducts);
 
   const filtered = products.filter((p) => {
     const matchSearch =

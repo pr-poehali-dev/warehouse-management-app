@@ -1,28 +1,6 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
-
-interface StockItem {
-  id: number;
-  emoji: string;
-  name: string;
-  qty: number;
-  cell: string;
-  category: string;
-  status: "available" | "in-use" | "reserved";
-}
-
-const stockItems: StockItem[] = [
-  { id: 1, emoji: "🔧", name: "Дрель Makita DF333D", qty: 5, cell: "A-01-03", category: "Электроинструмент", status: "available" },
-  { id: 2, emoji: "⚡", name: "Перфоратор Bosch GBH 2-26", qty: 3, cell: "A-01-04", category: "Электроинструмент", status: "in-use" },
-  { id: 3, emoji: "🔩", name: "Шуруповёрт DeWalt DCD796", qty: 8, cell: "A-02-01", category: "Электроинструмент", status: "available" },
-  { id: 4, emoji: "🔥", name: "Сварочный аппарат ESAB", qty: 2, cell: "B-01-02", category: "Сварка", status: "reserved" },
-  { id: 5, emoji: "💿", name: "Болгарка Metabo WB 18", qty: 6, cell: "A-02-03", category: "Электроинструмент", status: "available" },
-  { id: 6, emoji: "💨", name: "Компрессор Fubag B3600", qty: 1, cell: "C-03-01", category: "Пневматика", status: "in-use" },
-  { id: 7, emoji: "🔑", name: "Набор ключей Stanley", qty: 12, cell: "D-01-05", category: "Ручной инструмент", status: "available" },
-  { id: 8, emoji: "📐", name: "Лазерный уровень Bosch", qty: 4, cell: "D-02-02", category: "Измерение", status: "available" },
-  { id: 9, emoji: "🪛", name: "Набор отвёрток Wera", qty: 15, cell: "D-01-06", category: "Ручной инструмент", status: "available" },
-  { id: 10, emoji: "🔦", name: "Фонарь Fenix TK16", qty: 7, cell: "E-01-01", category: "Освещение", status: "available" },
-];
+import { useAppContext, ProfileData } from "@/context/AppContext";
 
 const statusLabel: Record<string, string> = {
   available: "В наличии",
@@ -37,8 +15,9 @@ const statusCls: Record<string, string> = {
 };
 
 function StockModal({ onClose }: { onClose: () => void }) {
+  const { products } = useAppContext();
   const [search, setSearch] = useState("");
-  const filtered = stockItems.filter(
+  const filtered = products.filter(
     (i) =>
       i.name.toLowerCase().includes(search.toLowerCase()) ||
       i.cell.toLowerCase().includes(search.toLowerCase()) ||
@@ -65,7 +44,7 @@ function StockModal({ onClose }: { onClose: () => void }) {
         <div className="px-4 pt-2 pb-3 border-b border-border/40 flex items-center justify-between gap-3">
           <div>
             <h2 className="font-oswald text-lg font-semibold gradient-text">Товары на складе</h2>
-            <p className="text-xs text-muted-foreground">{stockItems.length} позиций · 248 единиц</p>
+            <p className="text-xs text-muted-foreground">{products.length} позиций · {products.reduce((s, p) => s + p.qty, 0)} единиц</p>
           </div>
           <button
             onClick={onClose}
@@ -132,35 +111,6 @@ function StockModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-interface RevenueItem {
-  emoji: string;
-  name: string;
-  type: "sold" | "realization" | "passive";
-  amount: number;
-  qty?: number;
-  date: string;
-  note?: string;
-}
-
-const revenueItems: RevenueItem[] = [
-  { emoji: "🔧", name: "Дрель Makita DF333D", type: "sold", amount: 17000, qty: 2, date: "05 мар" },
-  { emoji: "💿", name: "Болгарка Metabo WB 18", type: "sold", amount: 9800, qty: 1, date: "08 мар" },
-  { emoji: "🔩", name: "Шуруповёрт DeWalt DCD796", type: "sold", amount: 24000, qty: 2, date: "12 мар" },
-  { emoji: "🔑", name: "Набор ключей Stanley", type: "realization", amount: 15600, qty: 3, date: "14 мар", note: "Реализация через партнёра" },
-  { emoji: "📐", name: "Лазерный уровень Bosch", type: "realization", amount: 18900, qty: 3, date: "17 мар", note: "Под реализацию" },
-  { emoji: "💨", name: "Компрессор Fubag B3600", type: "passive", amount: 8400, date: "01–28 мар", note: "Аренда · 28 дней × 300 ₽" },
-  { emoji: "⚡", name: "Перфоратор Bosch GBH", type: "passive", amount: 12600, date: "03–28 мар", note: "Лизинг · 25 дней × 504 ₽" },
-  { emoji: "🔥", name: "Сварочный аппарат ESAB", type: "passive", amount: 22000, date: "10–28 мар", note: "Аренда · 18 дней × 1 222 ₽" },
-  { emoji: "🔦", name: "Фонарь Fenix TK16 (×4)", type: "passive", amount: 6400, date: "15–28 мар", note: "Аренда · 13 дней × 492 ₽" },
-  { emoji: "🪛", name: "Набор отвёрток Wera", type: "realization", amount: 7800, qty: 2, date: "22 мар", note: "Реализация" },
-];
-
-const revenueTotals = {
-  sold: revenueItems.filter((i) => i.type === "sold").reduce((s, i) => s + i.amount, 0),
-  realization: revenueItems.filter((i) => i.type === "realization").reduce((s, i) => s + i.amount, 0),
-  passive: revenueItems.filter((i) => i.type === "passive").reduce((s, i) => s + i.amount, 0),
-};
-
 const revenueTypeLabel: Record<string, string> = {
   sold: "Продажа",
   realization: "Реализация",
@@ -180,8 +130,8 @@ const revenueTypeIcon: Record<string, string> = {
 const emojis = ["🔧","⚡","🔩","🔥","💿","💨","🔑","📐","🪛","🔦","🛠️","⚙️","🔌","🧰","📦"];
 
 function RevenueModal({ onClose }: { onClose: () => void }) {
+  const { revenueItems, setRevenueItems } = useAppContext();
   const [filter, setFilter] = useState<"all" | "sold" | "realization" | "passive">("all");
-  const [items, setItems] = useState<RevenueItem[]>(revenueItems);
   const [showForm, setShowForm] = useState(false);
   const [savedAnim, setSavedAnim] = useState(false);
 
@@ -196,16 +146,17 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
   });
 
   const totals = {
-    sold: items.filter((i) => i.type === "sold").reduce((s, i) => s + i.amount, 0),
-    realization: items.filter((i) => i.type === "realization").reduce((s, i) => s + i.amount, 0),
-    passive: items.filter((i) => i.type === "passive").reduce((s, i) => s + i.amount, 0),
+    sold: revenueItems.filter((i) => i.type === "sold").reduce((s, i) => s + i.amount, 0),
+    realization: revenueItems.filter((i) => i.type === "realization").reduce((s, i) => s + i.amount, 0),
+    passive: revenueItems.filter((i) => i.type === "passive").reduce((s, i) => s + i.amount, 0),
   };
   const total = totals.sold + totals.realization + totals.passive;
-  const filtered = filter === "all" ? items : items.filter((i) => i.type === filter);
+  const filtered = filter === "all" ? revenueItems : revenueItems.filter((i) => i.type === filter);
 
   const handleAdd = () => {
     if (!form.name.trim() || !form.amount || !form.date.trim()) return;
-    const newItem: RevenueItem = {
+    const newItem = {
+      id: Date.now(),
       emoji: form.emoji,
       name: form.name.trim(),
       type: form.type,
@@ -214,7 +165,7 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
       date: form.date.trim(),
       note: form.note.trim() || undefined,
     };
-    setItems((prev) => [newItem, ...prev]);
+    setRevenueItems([newItem, ...revenueItems]);
     setForm({ emoji: "📦", name: "", type: "sold", amount: "", qty: "", date: "", note: "" });
     setShowForm(false);
     setSavedAnim(true);
@@ -440,7 +391,7 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
                     </p>
                   </div>
                   <button
-                    onClick={() => setItems((prev) => prev.filter((_, idx) => idx !== globalIdx))}
+                    onClick={() => setRevenueItems(revenueItems.filter((_, idx) => idx !== globalIdx))}
                     className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/20 flex-shrink-0"
                   >
                     <Icon name="Trash2" size={12} className="text-red-400" />
@@ -458,12 +409,7 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-const stats = [
-  { label: "Товаров на складе", value: "248", icon: "Package", color: "#00e5ff", clickable: true, modal: "stock" },
-  { label: "В использовании", value: "37", icon: "ArrowUpRight", color: "#ff9100", clickable: false, modal: "" },
-  { label: "Выручка за месяц", value: "₽ 142 500", icon: "TrendingUp", color: "#00e676", clickable: true, modal: "revenue" },
-  { label: "Новых операций", value: "12", icon: "Activity", color: "#e040fb", clickable: false, modal: "" },
-];
+
 
 const recentActivity = [
   { action: "Добавлен товар", item: "Дрель Makita DF333D", time: "10:42", date: "Сегодня", type: "add" },
@@ -485,18 +431,6 @@ const typeIcons: Record<string, string> = {
   return: "ArrowDownLeft",
   update: "RefreshCw",
 };
-
-interface ProfileData {
-  firstName: string;
-  lastName: string;
-  role: string;
-  warehouseNumber: string;
-  since: string;
-  phone: string;
-  email: string;
-  address: string;
-  company: string;
-}
 
 function getInitials(first: string, last: string) {
   return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
@@ -529,22 +463,22 @@ function EditField({ label, value, icon, iconColor, onChange, type = "text" }: E
 }
 
 export default function TabOwner() {
+  const { profile, setProfile, products, revenueItems } = useAppContext();
+
+  const totalQty = products.reduce((s, p) => s + p.qty, 0);
+  const inUseCount = products.filter((p) => p.status === "in-use").length;
+  const totalRevenue = revenueItems.reduce((s, r) => s + r.amount, 0);
+
+  const stats = [
+    { label: "Товаров на складе", value: String(totalQty), icon: "Package", color: "#00e5ff", clickable: true, modal: "stock" },
+    { label: "В использовании", value: String(inUseCount), icon: "ArrowUpRight", color: "#ff9100", clickable: false, modal: "" },
+    { label: "Выручка за месяц", value: `₽ ${totalRevenue.toLocaleString("ru")}`, icon: "TrendingUp", color: "#00e676", clickable: true, modal: "revenue" },
+    { label: "Новых операций", value: String(revenueItems.length), icon: "Activity", color: "#e040fb", clickable: false, modal: "" },
+  ];
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showStock, setShowStock] = useState(false);
   const [showRevenue, setShowRevenue] = useState(false);
-
-  const [profile, setProfile] = useState<ProfileData>({
-    firstName: "Алексей",
-    lastName: "Смирнов",
-    role: "Владелец склада",
-    warehouseNumber: "№3",
-    since: "2021",
-    phone: "+7 (999) 123-45-67",
-    email: "a.smirnov@mail.ru",
-    address: "Москва, ул. Складская 12",
-    company: "ООО «ТехноСклад»",
-  });
 
   const [draft, setDraft] = useState<ProfileData>(profile);
 
