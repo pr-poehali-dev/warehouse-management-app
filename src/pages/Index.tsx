@@ -26,10 +26,10 @@ export default function Index() {
           </div>
           <div>
             <h1 className="font-oswald text-xl font-semibold gradient-text tracking-wide">
-              СКЛАДПРО
+              WORLD OF WAREHOUSES
             </h1>
             <p className="text-[10px] text-muted-foreground leading-none mt-0.5">
-              Система управления складом
+              Warehouse management system
             </p>
           </div>
         </div>
