@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Icon from "@/components/ui/icon";
 import { useAppContext, ProfileData } from "@/context/AppContext";
 
@@ -463,7 +463,7 @@ function EditField({ label, value, icon, iconColor, onChange, type = "text" }: E
 }
 
 export default function TabOwner() {
-  const { profile, setProfile, products, revenueItems } = useAppContext();
+  const { profile, setProfile, avatar, setAvatar, products, revenueItems } = useAppContext();
 
   const totalQty = products.reduce((s, p) => s + p.qty, 0);
   const inUseCount = products.filter((p) => p.status === "in-use").length;
@@ -479,8 +479,22 @@ export default function TabOwner() {
   const [saved, setSaved] = useState(false);
   const [showStock, setShowStock] = useState(false);
   const [showRevenue, setShowRevenue] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [draft, setDraft] = useState<ProfileData>(profile);
+
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (ev.target?.result) setAvatar(ev.target.result as string);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
   const handleEdit = () => {
     setDraft(profile);
@@ -511,10 +525,41 @@ export default function TabOwner() {
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cyan-500/5 blur-2xl"></div>
 
         <div className="relative flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl gradient-cyan-violet flex items-center justify-center shadow-lg flex-shrink-0">
-            <span className="font-oswald text-2xl font-bold text-background">
-              {getInitials(profile.firstName, profile.lastName)}
-            </span>
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+
+          {/* Avatar */}
+          <div
+            className="relative w-16 h-16 rounded-2xl flex-shrink-0 cursor-pointer group"
+            onClick={handleAvatarClick}
+          >
+            {avatar ? (
+              <img
+                src={avatar}
+                alt="Аватар"
+                className="w-16 h-16 rounded-2xl object-cover shadow-lg"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl gradient-cyan-violet flex items-center justify-center shadow-lg">
+                <span className="font-oswald text-2xl font-bold text-background">
+                  {getInitials(profile.firstName, profile.lastName)}
+                </span>
+              </div>
+            )}
+            {/* Hover overlay */}
+            <div className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Icon name="Camera" size={18} className="text-white" />
+            </div>
+            {/* Camera badge */}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full gradient-cyan-violet flex items-center justify-center border-2 border-card shadow">
+              <Icon name="Camera" size={10} className="text-background" />
+            </div>
           </div>
           <div className="flex-1">
             <h2 className="font-oswald text-xl font-semibold text-foreground">

@@ -92,7 +92,7 @@ type FontOption = "Golos Text" | "Oswald" | "Rubik";
 const fontOptions: FontOption[] = ["Golos Text", "Oswald", "Rubik"];
 
 export default function TabSettings() {
-  const { profile } = useAppContext();
+  const { profile, avatar } = useAppContext();
   const initials = `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase();
 
   const [notifications, setNotifications] = useState({
@@ -120,8 +120,14 @@ export default function TabSettings() {
     <div className="p-4 space-y-4">
       {/* Profile quick edit */}
       <div className="gradient-card rounded-xl p-4 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl gradient-cyan-violet flex items-center justify-center flex-shrink-0">
-          <span className="font-oswald text-lg font-bold text-background">{initials}</span>
+        <div className="w-12 h-12 rounded-xl flex-shrink-0 overflow-hidden">
+          {avatar ? (
+            <img src={avatar} alt="Аватар" className="w-full h-full object-cover rounded-xl" />
+          ) : (
+            <div className="w-full h-full gradient-cyan-violet flex items-center justify-center rounded-xl">
+              <span className="font-oswald text-lg font-bold text-background">{initials}</span>
+            </div>
+          )}
         </div>
         <div className="flex-1">
           <p className="font-medium text-sm text-foreground">{profile.firstName} {profile.lastName}</p>

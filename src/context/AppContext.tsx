@@ -44,6 +44,8 @@ export interface RevenueItem {
 interface AppContextType {
   profile: ProfileData;
   setProfile: (p: ProfileData) => void;
+  avatar: string | null;
+  setAvatar: (a: string | null) => void;
   products: Product[];
   setProducts: (p: Product[]) => void;
   revenueItems: RevenueItem[];
@@ -92,11 +94,12 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileData>(defaultProfile);
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>(defaultProducts);
   const [revenueItems, setRevenueItems] = useState<RevenueItem[]>(defaultRevenue);
 
   return (
-    <AppContext.Provider value={{ profile, setProfile, products, setProducts, revenueItems, setRevenueItems }}>
+    <AppContext.Provider value={{ profile, setProfile, avatar, setAvatar, products, setProducts, revenueItems, setRevenueItems }}>
       {children}
     </AppContext.Provider>
   );
