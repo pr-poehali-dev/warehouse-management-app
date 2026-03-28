@@ -177,17 +177,56 @@ const revenueTypeIcon: Record<string, string> = {
   passive: "Repeat",
 };
 
+const emojis = ["🔧","⚡","🔩","🔥","💿","💨","🔑","📐","🪛","🔦","🛠️","⚙️","🔌","🧰","📦"];
+
 function RevenueModal({ onClose }: { onClose: () => void }) {
   const [filter, setFilter] = useState<"all" | "sold" | "realization" | "passive">("all");
-  const filtered = filter === "all" ? revenueItems : revenueItems.filter((i) => i.type === filter);
-  const total = revenueTotals.sold + revenueTotals.realization + revenueTotals.passive;
+  const [items, setItems] = useState<RevenueItem[]>(revenueItems);
+  const [showForm, setShowForm] = useState(false);
+  const [savedAnim, setSavedAnim] = useState(false);
+
+  const [form, setForm] = useState({
+    emoji: "📦",
+    name: "",
+    type: "sold" as "sold" | "realization" | "passive",
+    amount: "",
+    qty: "",
+    date: "",
+    note: "",
+  });
+
+  const totals = {
+    sold: items.filter((i) => i.type === "sold").reduce((s, i) => s + i.amount, 0),
+    realization: items.filter((i) => i.type === "realization").reduce((s, i) => s + i.amount, 0),
+    passive: items.filter((i) => i.type === "passive").reduce((s, i) => s + i.amount, 0),
+  };
+  const total = totals.sold + totals.realization + totals.passive;
+  const filtered = filter === "all" ? items : items.filter((i) => i.type === filter);
+
+  const handleAdd = () => {
+    if (!form.name.trim() || !form.amount || !form.date.trim()) return;
+    const newItem: RevenueItem = {
+      emoji: form.emoji,
+      name: form.name.trim(),
+      type: form.type,
+      amount: Number(form.amount),
+      qty: form.qty ? Number(form.qty) : undefined,
+      date: form.date.trim(),
+      note: form.note.trim() || undefined,
+    };
+    setItems((prev) => [newItem, ...prev]);
+    setForm({ emoji: "📦", name: "", type: "sold", amount: "", qty: "", date: "", note: "" });
+    setShowForm(false);
+    setSavedAnim(true);
+    setTimeout(() => setSavedAnim(false), 2000);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div
         className="relative w-full max-w-lg bg-card rounded-t-2xl border border-border/60 shadow-2xl animate-slide-up"
-        style={{ maxHeight: "88vh" }}
+        style={{ maxHeight: "92vh" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle */}
@@ -199,12 +238,128 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
         <div className="px-4 pt-2 pb-3 border-b border-border/40 flex items-start justify-between gap-3">
           <div>
             <h2 className="font-oswald text-lg font-semibold gradient-text">Выручка за март 2026</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Итого: <span className="text-[#00e676] font-bold">{total.toLocaleString("ru")} ₽</span></p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Итого: <span className="text-[#00e676] font-bold">{total.toLocaleString("ru")} ₽</span>
+            </p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0">
-            <Icon name="X" size={16} className="text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowForm((v) => !v)}
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl border transition-all ${
+                showForm
+                  ? "bg-muted border-border text-muted-foreground"
+                  : "glow-btn gradient-cyan-violet text-background border-transparent font-medium"
+              }`}
+            >
+              <Icon name={showForm ? "ChevronUp" : "Plus"} size={13} />
+              {showForm ? "Свернуть" : "Добавить"}
+            </button>
+            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0">
+              <Icon name="X" size={16} className="text-muted-foreground" />
+            </button>
+          </div>
         </div>
+
+        {/* Add form */}
+        {showForm && (
+          <div className="px-4 py-3 border-b border-border/40 space-y-3 animate-fade-in bg-muted/20">
+            {/* Emoji picker */}
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1.5">Иконка товара</p>
+              <div className="flex gap-1.5 flex-wrap">
+                {emojis.map((e) => (
+                  <button
+                    key={e}
+                    onClick={() => setForm((p) => ({ ...p, emoji: e }))}
+                    className={`w-8 h-8 rounded-lg text-base flex items-center justify-center transition-all ${
+                      form.emoji === e
+                        ? "bg-[#00e5ff]/20 border border-[#00e5ff]/50 scale-110"
+                        : "bg-muted/50 border border-border/40 hover:bg-muted"
+                    }`}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Type selector */}
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1.5">Тип записи</p>
+              <div className="flex gap-2">
+                {(["sold", "realization", "passive"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setForm((p) => ({ ...p, type: t }))}
+                    className="flex-1 text-[11px] py-2 rounded-xl border transition-all font-medium"
+                    style={{
+                      background: form.type === t ? `${revenueTypeColor[t]}18` : "transparent",
+                      borderColor: form.type === t ? `${revenueTypeColor[t]}50` : "rgba(255,255,255,0.08)",
+                      color: form.type === t ? revenueTypeColor[t] : "#6b7280",
+                    }}
+                  >
+                    {revenueTypeLabel[t]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Fields */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="col-span-2">
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                  placeholder="Название товара *"
+                  className="w-full bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+                />
+              </div>
+              <input
+                type="number"
+                value={form.amount}
+                onChange={(e) => setForm((p) => ({ ...p, amount: e.target.value }))}
+                placeholder="Сумма, ₽ *"
+                className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              />
+              <input
+                type="number"
+                value={form.qty}
+                onChange={(e) => setForm((p) => ({ ...p, qty: e.target.value }))}
+                placeholder="Кол-во, шт."
+                className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              />
+              <input
+                value={form.date}
+                onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))}
+                placeholder="Дата (напр. 28 мар) *"
+                className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              />
+              <input
+                value={form.note}
+                onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
+                placeholder="Примечание"
+                className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#00e5ff]/50 transition-colors"
+              />
+            </div>
+
+            <button
+              onClick={handleAdd}
+              disabled={!form.name.trim() || !form.amount || !form.date.trim()}
+              className="w-full glow-btn gradient-cyan-violet text-background font-medium text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            >
+              <Icon name="CheckCircle2" size={15} />
+              Сохранить запись
+            </button>
+          </div>
+        )}
+
+        {/* Success toast */}
+        {savedAnim && (
+          <div className="mx-4 mt-2 flex items-center gap-2 bg-[#00e676]/10 border border-[#00e676]/30 rounded-lg px-3 py-2 animate-fade-in">
+            <Icon name="CheckCircle2" size={14} className="text-[#00e676]" />
+            <span className="text-xs text-[#00e676] font-medium">Запись добавлена</span>
+          </div>
+        )}
 
         {/* KPI row */}
         <div className="px-4 py-3 grid grid-cols-3 gap-2">
@@ -219,7 +374,7 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
               onClick={() => setFilter(filter === t ? "all" : t)}
             >
               <p className="font-oswald text-sm font-bold" style={{ color: revenueTypeColor[t] }}>
-                {(revenueTotals[t] / 1000).toFixed(1)}k ₽
+                {(totals[t] / 1000).toFixed(1)}k ₽
               </p>
               <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight">{revenueTypeLabel[t]}</p>
             </div>
@@ -244,7 +399,7 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* List */}
-        <div className="overflow-y-auto px-4 pb-6 space-y-2" style={{ maxHeight: "50vh" }}>
+        <div className="overflow-y-auto px-4 pb-6 space-y-2" style={{ maxHeight: "42vh" }}>
           {filtered.map((item, i) => (
             <div
               key={i}
@@ -283,6 +438,9 @@ function RevenueModal({ onClose }: { onClose: () => void }) {
               </div>
             </div>
           ))}
+          {filtered.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground text-sm">Записей нет</div>
+          )}
         </div>
       </div>
     </div>
